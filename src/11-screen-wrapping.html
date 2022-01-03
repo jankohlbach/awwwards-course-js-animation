@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>11 - Screen wrapping</title>
+
+  <style>
+
+    * { margin: 0; padding: 0; }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: sans-serif;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.5em;
+      margin-bottom: 1em;
+    }
+
+    #go-back {
+      position: fixed;
+      top: 1em;
+      left: 1em;
+    }
+
+    #canvas {
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .hint {
+      position: fixed;
+      bottom: 1em;
+      left: 1em;
+    }
+
+  </style>
+
+</head>
+<body>
+
+  <a id="go-back" href="/">Go Back</a>
+
+  <div id="container">
+    <h1>11 - Screen wrapping</h1>
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <div class="hint">Use the arrow buttons to control the acceleration</div>
+
+  <script>
+
+    const CANVAS_WIDTH = 512;
+    const CANVAS_HEIGHT = 512;
+
+    const canvas = document.getElementById('canvas');
+
+    canvas.width = CANVAS_WIDTH * devicePixelRatio;
+    canvas.height = CANVAS_HEIGHT * devicePixelRatio;
+
+    canvas.style.width = `${CANVAS_WIDTH}px`;
+    canvas.style.height = `${CANVAS_HEIGHT}px`;
+
+    const ctx = canvas.getContext('2d');
+
+    let oldTime = 0;
+
+    let positionX = 100;
+    let positionY = 100;
+
+    let velocityX = 0;
+    let velocityY = 0;
+
+    let accelerationX = 0;
+    let accelerationY = 0;
+
+    const KEY_DOWN_ACCELERATION = 4;
+    const RECT_WIDTH = 20;
+    const RECT_HEIGHT = 20;
+
+    document.addEventListener('keydown', (event) => {
+      switch (event.keyCode) {
+        case 38:
+          accelerationY = -KEY_DOWN_ACCELERATION;
+          break;
+        case 40:
+          accelerationY = KEY_DOWN_ACCELERATION;
+          break;
+        case 37:
+          accelerationX = -KEY_DOWN_ACCELERATION;
+          break;
+        case 39:
+          accelerationX = KEY_DOWN_ACCELERATION;
+          break;
+      }
+    });
+
+    document.addEventListener('keyup', () => {
+      accelerationX = 0;
+      accelerationY = 0;
+    });
+
+    requestAnimationFrame(drawFrame);
+
+    function drawFrame(ts) {
+      ts /= 1000;
+
+      const dt = ts - oldTime;
+
+      oldTime = ts;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      velocityX += accelerationX * dt;
+      velocityY += accelerationY * dt;
+
+      positionX += velocityX;
+      positionY += velocityY;
+
+      if (positionX > canvas.width) {
+        positionX = -RECT_WIDTH;
+      } else if (positionX < -RECT_WIDTH) {
+        positionX = canvas.width;
+      }
+
+      if (positionY > canvas.height) {
+        positionY = -RECT_HEIGHT;
+      } else if (positionY < -RECT_HEIGHT) {
+        positionY = canvas.height;
+      }
+
+      ctx.fillRect(positionX, positionY, RECT_WIDTH, RECT_HEIGHT);
+
+      requestAnimationFrame(drawFrame);
+    }
+
+  </script>
+
+</body>
+</html>
